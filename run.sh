@@ -30,6 +30,12 @@ xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 GODZILLA_DIR="$SCRIPT_DIR/pga-godzilla-cmake"
 GODZILLA_BUILD_DIR="$SCRIPT_DIR/pga-godzilla-cmake-build"
 
+#if [[ ! -e /dev/nvidia-uvm ]]; then
+#  sudo modprobe nvidia-uvm
+#  D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
+#  sudo mknod -m 666 /dev/nvidia-uvm c $D 0
+#fi
+
 #xhost +
 
 docker run \
