@@ -7,20 +7,9 @@ docker_version=$(docker version --format '{{.Client.Version}}')
 
 # Docker 1.3.0 or later is required for --device
 if ! version_gt "${docker_version}" "1.2.0"; then
-	echo "Docker version 1.3.0 or greater is required"
-	exit 1
+  echo "Docker version 1.3.0 or greater is required"
+  exit 1
 fi
-
-if test $# -lt 1; then
-	# Get the latest opengl-nvidia build
-	# and start with an interactive terminal enabled
-	args="-i -t $(docker images | grep ^opengl-nvidia | head -n 1 | awk '{ print $1":"$2 }')"
-else
-        # Use this script with derived images, and pass your 'docker run' args
-	args="$@"
-fi
-
-
 
 XSOCK=/tmp/.X11-unix
 XAUTH=/tmp/.docker.xauth
@@ -30,29 +19,30 @@ xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 GODZILLA_DIR="$SCRIPT_DIR/pga-godzilla-cmake"
 GODZILLA_BUILD_DIR="$SCRIPT_DIR/pga-godzilla-cmake-build"
 
-#if [[ ! -e /dev/nvidia-uvm ]]; then
-#  sudo modprobe nvidia-uvm
-#  D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
-#  sudo mknod -m 666 /dev/nvidia-uvm c $D 0
-#fi
+if [[ ! -e /dev/nvidia-uvm ]]; then
+  echo "Need to enable nvidia-uvm before starting docker (needs sudo)"
+  sudo modprobe nvidia-uvm
+  D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
+  sudo mknod -m 666 /dev/nvidia-uvm c $D 0
+fi
 
-#xhost +
+touch .zsh_history
 
 docker run \
-	-v $XSOCK:$XSOCK:rw \
+  -v "$SCRIPT_DIR/.zsh_history":/root/.zsh_history \
+  -v $XSOCK:$XSOCK:rw \
   -v $GODZILLA_DIR:/pga-godzilla-cmake \
   -v $GODZILLA_BUILD_DIR:/pga-godzilla-cmake-build \
-	-e XAUTHORITY=$XAUTH \
-	-v $XAUTH:$XAUTH:rw \
+  -e XAUTHORITY=$XAUTH \
+  -v $XAUTH:$XAUTH:rw \
   --device=/dev/dri/card0:/dev/dri/card0 \
   --device=/dev/dri/card1:/dev/dri/card1 \
   --device /dev/nvidia0:/dev/nvidia0 \
   --device /dev/nvidia1:/dev/nvidia1 \
   --device /dev/nvidiactl:/dev/nvidiactl \
+  --device /dev/nvidia-modeset:/dev/nvidia-modeset \
   --device /dev/nvidia-uvm:/dev/nvidia-uvm \
   --device /dev/bus/usb:/dev/bus/usb:rwm \
-	-e DISPLAY=$DISPLAY \
-	$args
+  -e DISPLAY=$DISPLAY \
+  -i -t --rm godzilla:latest
 
-
-#xhost -

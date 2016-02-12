@@ -38,4 +38,4 @@ RUN cd /tmp/bullet3-2.83.7/ && cmake . \
 RUN curl -o /root/.zshrc 'http://git.grml.org/?p=grml-etc-core.git;a=blob_plain;f=etc/zsh/zshrc;hb=HEAD'
 
 
-CMD /bin/zsh
+CMD /bin/zsh -c "cd /pga-godzilla-cmake-build && cmake /pga-godzilla-cmake && make; zsh -i"
