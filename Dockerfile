@@ -9,7 +9,7 @@ RUN apt-get install -y zsh curl cmake clang   \
                        clang-format-3.6 clang-modernize-3.6 vim \
                        build-essential libboost-dev             \
                        libassimp-dev unzip libglew-dev libsdl2-dev libsdl2-image-dev libglm-dev \
-                       opencl-headers
+                       opencl-headers libboost-filesystem-dev
 
 
 ADD nvidia-driver.run /tmp/nvidia-driver.run
